@@ -8,14 +8,14 @@ using namespace std;
 
 void signalHandler(int signal);
 void childHandler(int /*signum*/);
-void performCatAction(const string& args);
 void performLsAction(const string& args);
+void performCatAction(const string& args);
 void performNiceAction(const string& args);
-void performPsAction(const string& args);
 void killAllProcesses(const string& args);
-void executeExternalCommand(const std::string& command);
 void suspendProcess(pid_t pid);
 void resumeProcess(pid_t pid);
+void performPsAction(const string& args);
+void executeExternalCommand(const string& args);
 
 int main() {
     signal(SIGINT, signalHandler); 
@@ -23,6 +23,7 @@ int main() {
 
     string command;
     while (true) {
+        usleep(500000);
         cout << "Enter a command: ";
         getline(cin, command);
 
@@ -52,11 +53,13 @@ int main() {
             resumeProcess(pid);
         } else if (cmd == "ps") {
             performPsAction(args);
+        } else if (cmd == "run") {
+            executeExternalCommand(args);
         } else if (cmd == "exit") {
             cout << "Exiting...\n";
             break;
         } else {
-            executeExternalCommand(command);
+            cout << "Invalid command\n";
         }
     }
 
@@ -66,7 +69,7 @@ int main() {
 // Обработчик сигналов
 void signalHandler(int signal) {
     if (signal == SIGINT) {
-        cout << "Received SIGINT. Exiting...\n";
+        cout << "\nReceived SIGINT. Exiting...\n";
         exit(0);
     }
 }
@@ -80,17 +83,17 @@ void childHandler(int /*signum*/) {
     }
 }
 
-// Функция для выполнения "cat" действия
-void performCatAction(const string& args) {
-    cout << "Reading your file:'\n'";
-    string command = "cat " + args;
-    system(command.c_str());
-}
-
 // Функция для выполнения "ls" действия
 void performLsAction(const string& args) {
     cout << "Listing directory contents:\n";
     string command = "ls " + args;
+    system(command.c_str());
+}
+
+// Функция для выполнения "cat" действия
+void performCatAction(const string& args) {
+    cout << "Reading your file:'\n'";
+    string command = "cat " + args;
     system(command.c_str());
 }
 
@@ -101,30 +104,11 @@ void performNiceAction(const string& args) {
     system(command.c_str());
 }
 
-// Функция для просмотра процессов
-void performPsAction(const string& args) {
-    cout << "Performing ps action...\n";
-    string command = "ps " + args;
-    system(command.c_str());
-}
-
 // Функция для завершения всех процессов
 void killAllProcesses(const string& args) {
     cout << "Killing all \"" << args << "\" processes...\n";
     string command = "killall '" + args + "'";
     system(command.c_str());
-}
-
-void executeExternalCommand(const std::string& command) {
-    pid_t pid = fork();
-    if (pid == 0) { // Child process
-        string tmpCmd = "/Applications/" + command + ".app/Contents/MacOS/" + command;
-        execlp(tmpCmd.c_str(), command.c_str(), "-g", NULL);
-        cerr << "Failed to execute external program\n";
-        exit(1);
-    } else if (pid < 0) { // Fork failed
-        cerr << "Fork failed\n";
-    }
 }
 
 // Функция для приостановки выполнения процесса
@@ -137,4 +121,24 @@ void suspendProcess(pid_t pid) {
 void resumeProcess(pid_t pid) {
     kill(pid, SIGCONT);
     std::cout << "Process with PID " << pid << " resumed\n";
+}
+
+// Функция для просмотра процессов
+void performPsAction(const string& args) {
+    cout << "Performing ps action...\n";
+    string command = "ps " + args;
+    system(command.c_str());
+}
+
+//Функция для запуска внешней программы
+void executeExternalCommand(const string& args) {
+    pid_t pid = fork();
+    if (pid == 0) { // Child process
+        string tmpCmd = "/Applications/" + args + ".app/Contents/MacOS/" + args;
+        execlp(tmpCmd.c_str(), args.c_str(), NULL);
+        cerr << "Failed to execute external program\n";
+        exit(1);
+    } else if (pid < 0) { // Fork failed
+        cerr << "Fork failed\n";
+    }
 }
