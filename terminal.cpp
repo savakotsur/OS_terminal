@@ -15,6 +15,7 @@ void killAllProcesses(const string& args);
 void suspendProcess(pid_t pid);
 void resumeProcess(pid_t pid);
 void performPsAction(const string& args);
+void performTopAction(const string& args);
 void executeExternalCommand(const string& args);
 
 int main() {
@@ -55,6 +56,8 @@ int main() {
             performPsAction(args);
         } else if (cmd == "run") {
             executeExternalCommand(args);
+        } else if (cmd == "top") {
+            performTopAction(args);
         } else if (cmd == "exit") {
             cout << "Exiting...\n";
             break;
@@ -127,6 +130,13 @@ void resumeProcess(pid_t pid) {
 void performPsAction(const string& args) {
     cout << "Performing ps action...\n";
     string command = "ps " + args;
+    system(command.c_str());
+}
+
+// Функция для просмотра процессов
+void performTopAction(const string& args) {
+    cout << "Performing top action...\n";
+    string command = "top " + args;
     system(command.c_str());
 }
 
