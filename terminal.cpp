@@ -79,7 +79,7 @@ void childHandler(int /*signum*/) {
     pid_t pid;
     int status;
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-        std::cout << "Child process " << pid << " terminated\n";
+        cout << "Child process " << pid << " terminated\n";
     }
 }
 
@@ -114,13 +114,13 @@ void killAllProcesses(const string& args) {
 // Функция для приостановки выполнения процесса
 void suspendProcess(pid_t pid) {
     kill(pid, SIGSTOP);
-    std::cout << "Process with PID " << pid << " suspended\n";
+    cout << "Process with PID " << pid << " suspended\n";
 }
 
 // Функция для продолжения выполнения процесса
 void resumeProcess(pid_t pid) {
     kill(pid, SIGCONT);
-    std::cout << "Process with PID " << pid << " resumed\n";
+    cout << "Process with PID " << pid << " resumed\n";
 }
 
 // Функция для просмотра процессов
